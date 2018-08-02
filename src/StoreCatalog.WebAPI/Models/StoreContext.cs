@@ -12,7 +12,7 @@ namespace StoreCatalog.WebAPI.Models
     public class StoreContext : DbContext
     {
         public DbSet<StoreCatalogReady> StoreCatalogs { get; set; }
-        public DbSet<ProductToGet> Products { get; set; }
+        public DbSet<ProductToUpsert> Products { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseInMemoryDatabase("StoreCatalog");

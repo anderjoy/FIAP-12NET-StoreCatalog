@@ -32,14 +32,15 @@ namespace StoreCatalog.WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(string[] restrictions)
         {
             var areas = JsonConvert.DeserializeObject<ProductionArea[]>(await _httpClient.GetStringAsync(_configuration["ProductionAreas"]));
+            
 
             var products = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["Products"]));
 
             //Grava os produtos no banco
-            await _storeContext.Products.AddRangeAsync(products);
+            //await _storeContext.Products.AddRangeAsync(products);
             await _storeContext.SaveChangesAsync();
 
             return Ok(areas);

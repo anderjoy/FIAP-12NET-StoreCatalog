@@ -27,34 +27,35 @@ namespace StoreCatalog.WebAPI.Controllers
         }
 
         [Route("store/")]
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             //verificar se tem produtos, areas blablabla
             //Verifica as areas
-            var areas = JsonConvert.DeserializeObject<ProductionArea[]>(await _httpClient.GetStringAsync(_configuration["ProductionAreas"]));
-            var products = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["Products"]));
+            //var areas = JsonConvert.DeserializeObject<ProductionArea[]>(await _httpClient.GetStringAsync(_configuration["ProductionAreas"]));
+            //var products = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["Products"]));
 
-            foreach (var product in products)
-            {
-                if (!_storeContext.Products.Any(c => c.Name == product.Name))
-                {
-                    var productUpsert = new ProductToUpsert()
-                    {
-                        Image = product.Image,
-                        Name = product.Name,
-                        Price = product.Price,
-                        
-                    };
-                    _storeContext.Products.Add(new ProductToUpsert()
-                    {
-                      
+            //foreach (var product in products)
+            //{
+            //    if (!_storeContext.Products.Any(c => c.Name == product.Name))
+            //    {
+            //        var productUpsert = new ProductToUpsert()
+            //        {
+            //            Image = product.Image,
+            //            Name = product.Name,
+            //            Price = product.Price,
 
-                    });
-                }
-                    
-            }
+            //        };
+            //        _storeContext.Products.Add(new ProductToUpsert()
+            //        {
 
-            return StatusCode(503);
+
+            //        });
+            //    }
+
+            //}
+
+            return Ok();
         }
 
         [HttpGet]
@@ -66,9 +67,9 @@ namespace StoreCatalog.WebAPI.Controllers
 
             //Grava os produtos no banco
             //await _storeContext.Products.AddRangeAsync(products);
-            await _storeContext.SaveChangesAsync();
+            //await _storeContext.SaveChangesAsync();
 
-            return Ok(areas);
+            return Ok();
         }
     }
 }

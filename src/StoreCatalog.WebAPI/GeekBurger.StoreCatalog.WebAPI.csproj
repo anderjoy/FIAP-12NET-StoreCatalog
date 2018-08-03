@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <UserSecretsId>3758f4d0-8b12-4f53-a849-fd406f6cc5ad</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="6.2.2" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="3.2.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
     <PackageReference Include="GeekBurger.Production.Contract" Version="1.0.1" />
     <PackageReference Include="GeekBurger.Products.Contract" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />

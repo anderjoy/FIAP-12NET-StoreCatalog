@@ -30,6 +30,10 @@ namespace StoreCatalog.WebAPI
         {
             services.AddDbContext<StoreContext>();
             services.AddSingleton(f => new HttpClient());
+
+            services.AddTransient<IProductionAreaService, ProductionAreaService>();
+            services.AddTransient<IProductService, ProductService>();
+
             services.AddSingleton<IStoreCatalogInitialization, StoreCatalogInitialization>();
 
             services.AddSwaggerGen(c =>
@@ -45,6 +49,8 @@ namespace StoreCatalog.WebAPI
                 .AddFormatterMappings()
                 .AddJsonFormatters()
                 .AddCors();
+
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,6 +69,8 @@ namespace StoreCatalog.WebAPI
             });
 
             app.UseMvc();
+
+            var storeCatalogInitialize = app.ApplicationServices.GetService<IStoreCatalogInitialization>();
         }
     }
 }

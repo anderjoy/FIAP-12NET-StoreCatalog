@@ -7,5 +7,6 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
 {
     public interface IStoreCatalogInitialization
     {
+        
     }
 }

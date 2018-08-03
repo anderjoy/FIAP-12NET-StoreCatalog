@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
+using GeekBurger.StoreCatalog.WebAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +30,7 @@ namespace StoreCatalog.WebAPI
         {
             services.AddDbContext<StoreContext>();
             services.AddSingleton(f => new HttpClient());
+            services.AddSingleton<IStoreCatalogInitialization, StoreCatalogInitialization>();
 
             services.AddSwaggerGen(c =>
             {

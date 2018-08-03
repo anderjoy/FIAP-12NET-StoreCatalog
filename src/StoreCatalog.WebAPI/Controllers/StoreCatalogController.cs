@@ -12,7 +12,7 @@ using StoreCatalog.WebAPI.Models;
 
 namespace StoreCatalog.WebAPI.Controllers
 {
-    [Route("api/store")]
+    [Route("api")]
     public class StoreCatalogController : Controller
     {
         private readonly HttpClient _httpClient;
@@ -26,18 +26,43 @@ namespace StoreCatalog.WebAPI.Controllers
             _storeContext = storeContext ?? throw new ArgumentNullException(nameof(storeContext));
         }
 
-        public IActionResult Index()
+        [Route("store")]
+        public async Task<IActionResult> Index()
         {
-            return View();
+            //verificar se tem produtos, areas blablabla
+            //Verifica as areas
+            var areas = JsonConvert.DeserializeObject<ProductionArea[]>(await _httpClient.GetStringAsync(_configuration["ProductionAreas"]));
+            var products = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["Products"]));
+
+            foreach (var product in products)
+            {
+                if (!_storeContext.Products.Any(c => c.Name == product.Name))
+                {
+                    var productUpsert = new ProductToUpsert()
+                    {
+                        Image = product.Image,
+                        Name = product.Name,
+                        Price = product.Price,
+                        
+                    };
+                    _storeContext.Products.Add(new ProductToUpsert()
+                    {
+                      
+
+                    });
+                }
+                    
+            }
+
+            return StatusCode(503);
         }
 
         [HttpGet]
         public async Task<IActionResult> Get(string[] restrictions)
         {
-            var areas = JsonConvert.DeserializeObject<ProductionArea[]>(await _httpClient.GetStringAsync(_configuration["ProductionAreas"]));
+            
             
 
-            var products = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["Products"]));
 
             //Grava os produtos no banco
             //await _storeContext.Products.AddRangeAsync(products);

@@ -26,7 +26,7 @@ namespace StoreCatalog.WebAPI.Controllers
             _storeContext = storeContext ?? throw new ArgumentNullException(nameof(storeContext));
         }
 
-        [Route("store")]
+        [Route("store/")]
         public async Task<IActionResult> Index()
         {
             //verificar se tem produtos, areas blablabla

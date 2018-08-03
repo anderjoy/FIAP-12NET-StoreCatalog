@@ -1,18 +1,13 @@
-﻿using GeekBurger.Products.Contract;
-using GeekBurger.StoreCatalog.Contract.Model;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace StoreCatalog.WebAPI.Models
 {
     public class StoreContext : DbContext
     {
-        public DbSet<StoreCatalogReady> StoreCatalogs { get; set; }
-        public DbSet<ProductToUpsert> Products { get; set; }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductionAreas> ProductionAreas { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseInMemoryDatabase("StoreCatalog");
@@ -20,8 +15,15 @@ namespace StoreCatalog.WebAPI.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<StoreCatalogReady>()
-                .HasKey(c => c.Id);
+            modelBuilder.Entity<Item>().HasKey(x => x.Id);
+
+            modelBuilder.Entity<Product>().HasKey(x => x.Id);
+
+            modelBuilder.Entity<ProductionAreas>().HasKey(x => x.Id);
+
+            modelBuilder.Entity<Product>()
+                .HasMany(p => p.Items)
+                .WithOne(i => i.Product);
         }
     }
 }

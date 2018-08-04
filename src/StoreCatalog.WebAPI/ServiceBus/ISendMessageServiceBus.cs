@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
 {
-    public interface ISendMenssageServiceBus
+    public interface ISendMessageServiceBus
     {
-        Task SendStoreCatalogReady();
+        Task SendStoreCatalogReadyAsync();
     }
 }

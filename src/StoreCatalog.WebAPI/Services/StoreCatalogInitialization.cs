@@ -1,5 +1,6 @@
 ﻿using GeekBurger.Production.Contract.Model;
 using GeekBurger.Products.Contract;
+using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -16,15 +17,18 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
         private readonly HttpClient _httpClient;
         private readonly IProductionAreaService _productionAreaService;
         private readonly IProductService _productService;
+        private readonly ISendMessageServiceBus _sendMessageServiceBus;
 
         public StoreCatalogInitialization(IConfiguration configuration, HttpClient httpClient, 
             IProductionAreaService productionAreaService,
-            IProductService productService)
+            IProductService productService,
+            ISendMessageServiceBus sendMessageServiceBus)
         {
             _configuration = configuration;
             _httpClient = httpClient;
             _productionAreaService = productionAreaService;
             _productService = productService;
+            _sendMessageServiceBus = sendMessageServiceBus;
 
             Task.Run(async () => await InitializeStoreCatalog());
         }
@@ -35,6 +39,8 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             {
                 var areas = await _productionAreaService.GetProductionAreaAsync();
                 var products = await _productService.GetProductsAsync();
+
+                await _sendMessageServiceBus.SendStoreCatalogReadyAsync();
             }
             catch (Exception)
             {

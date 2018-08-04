@@ -95,5 +95,24 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
             {
             }
         }
+
+        public async Task SendUserWithLessOffer(dynamic userInfo)
+        {
+            try
+            {
+                await CreateTopicAsync();
+
+                var topicClient = new TopicClient(connectionString, "UserWithLessOffer");
+                
+
+                var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(userInfo)));
+
+                await topicClient.SendAsync(message);
+                await topicClient.CloseAsync();
+            }
+            catch (Exception)
+            {
+            }
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
     public interface ISendMessageServiceBus
     {
         Task SendStoreCatalogReadyAsync();
+        Task SendUserWithLessOffer(dynamic userInfo);
     }
 }

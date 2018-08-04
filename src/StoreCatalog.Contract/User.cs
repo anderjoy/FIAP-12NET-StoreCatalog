@@ -8,6 +8,7 @@ namespace GeekBurguer.StoreCatalog.Contract
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string StoreNome { get; set; }
 
         [NotMapped]
         public string[] Restrictions { get; set; }

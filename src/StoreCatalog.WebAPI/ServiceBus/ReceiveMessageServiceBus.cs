@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using StoreCatalog.WebAPI.Models;
 using System;
 using System.Text;
 using System.Threading;
@@ -22,13 +23,14 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
         static ISubscriptionClient _subscriptionClientProductChanged;
         static ISubscriptionClient _subscriptionClientProductionAreaChanged;
 
-        public ReceiveMessageServiceBus(IConfiguration configuration,
-            IProductRepository productRepository,
-            IProductionAreaRepository productionAreaRepository)
+        //public ReceiveMessageServiceBus(IConfiguration configuration,
+        //    IProductRepository productRepository,
+        //    IProductionAreaRepository productionAreaRepository)
+        public ReceiveMessageServiceBus(IConfiguration configuration)
         {
             _configuration = configuration;
-            _productRepository = productRepository;
-            _productionAreaRepository = productionAreaRepository;
+            _productRepository = new ProductRepository(new StoreContext());
+            _productionAreaRepository = new ProductionAreaRepository(new StoreContext());
 
             _subscriptionClientProductChanged = new SubscriptionClient(
                 _configuration["serviceBus:connectionString"],

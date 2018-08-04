@@ -31,8 +31,9 @@ namespace GeekBurger.StoreCatalog.WebAPI.Repository
         {
             if (_context.Products.AsNoTracking().Any(x => x.Id == product.Id))
             {
-                _context.Attach(product);
-                _context.Update(product);
+                //_context.Attach(product);
+                //_context.Update(product);
+                _context.Entry(product).State = EntityState.Modified;
             }
             else
             {

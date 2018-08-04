@@ -1,4 +1,4 @@
-﻿using GeekBurger.Production.Contract.Model;
+﻿using GeekBurger.Productions.Contract;
 using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
 using GeekBurguer.Ingredients.Contracts;
 using GeekBurguer.StoreCatalog.Contract;
@@ -71,7 +71,7 @@ namespace StoreCatalog.WebAPI.Controllers
             {
                 var url = _configuration["ProductionAreas"];
                 var urlIngredients = _configuration["Ingredients"];
-                var areas = JsonConvert.DeserializeObject<IEnumerable<ProductionArea>>(await _httpClient.GetStringAsync(url));
+                var areas = JsonConvert.DeserializeObject<IEnumerable<ProductionAreaToGet>>(await _httpClient.GetStringAsync(url));
                 var allowedAreas = areas.Where(area => user.Restrictions.All(restriction => area.Restrictions.Contains(restriction)));
                 //var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<MergeProductsAndIngredients>>(await _httpClient.GetStringAsync(urlIngredients));
 

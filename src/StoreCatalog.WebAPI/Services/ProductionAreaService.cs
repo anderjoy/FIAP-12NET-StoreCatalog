@@ -60,7 +60,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             {
                 Id = x.ProductionId,
                 Name = "",
-                Restrictions = x.Restrictions.ToArray(),
+                Restrictions = string.Join(',', x.Restrictions),
                 Status = x.On
             }).ToList() ;
         }

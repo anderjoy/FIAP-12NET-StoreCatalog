@@ -34,7 +34,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             _sendMessageServiceBus = sendMessageServiceBus;
             _productRepository = productRepository;
 
-            Task.Run(async () => await InitializeStoreCatalog());
+            Task.Run(async () => await InitializeStoreCatalog()).Wait();
         }
 
         private async Task InitializeStoreCatalog()
@@ -50,6 +50,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             }
             catch (Exception)
             {
+                throw;
             }            
         }
     }

@@ -75,7 +75,10 @@ namespace StoreCatalog.WebAPI
 
             app.UseMvc();
 
-            var storeCatalogInitialize = app.ApplicationServices.GetRequiredService<IStoreCatalogInitialization>();
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var storeCatalogInitialize = scope.ServiceProvider.GetService<IStoreCatalogInitialization>();
+            }            
         }
     }
 }

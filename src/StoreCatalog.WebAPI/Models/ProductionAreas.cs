@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StoreCatalog.WebAPI.Models
 {
@@ -10,6 +12,9 @@ namespace StoreCatalog.WebAPI.Models
 
         public bool Status { get; set; }
 
-        public string[] Restrictions { get; set; }
+        public string Restrictions { get; set; }
+
+        [NotMapped]
+        public IList<string> ListRestrictions => Restrictions?.Split(',');
     }
 }

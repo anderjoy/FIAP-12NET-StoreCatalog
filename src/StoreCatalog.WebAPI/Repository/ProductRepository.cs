@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using StoreCatalog.WebAPI.Models;
 
 namespace GeekBurger.StoreCatalog.WebAPI.Repository
@@ -17,7 +18,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Repository
 
         public async Task UpsertProductAsync(Product product)
         {
-            if (_context.Products.Any(x => x.Id == product.Id))
+            if (_context.Products.AsNoTracking().Any(x => x.Id == product.Id))
             {
                 _context.Attach(product);
                 _context.Update(product);

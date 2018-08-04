@@ -73,7 +73,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
                 Items = x.Items.Select(i => new Item()
                 {
                     Id = i.ItemId,
-                    Ingredients = new List<string>()
+                    Ingredients = ""
                 })
             }).ToList();
 

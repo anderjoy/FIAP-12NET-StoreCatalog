@@ -1,11 +1,11 @@
 ﻿using GeekBurger.Production.Contract.Model;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using StoreCatalog.WebAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GeekBurger.StoreCatalog.WebAPI.Services
@@ -21,7 +21,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             _httpClient = httpClient;
         }
 
-        public async Task<ProductionArea[]> GetProductionAreaAsync()
+        public async Task<IList<ProductionAreas>> GetProductionAreaAsync()
         {
             ProductionArea[] areas = null;
 
@@ -56,7 +56,13 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
                 };
             }
 
-            return areas;
+            return areas.Select(x => new ProductionAreas()
+            {
+                Id = x.ProductionId,
+                Name = "",
+                Restrictions = x.Restrictions.ToArray(),
+                Status = x.On
+            }).ToList() ;
         }
     }
 }

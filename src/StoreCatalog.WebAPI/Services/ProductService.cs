@@ -74,7 +74,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
                 {
                     Id = i.ItemId,
                     Ingredients = ""
-                })
+                }).ToList()
             }).ToList();
 
         }

@@ -2,6 +2,7 @@
 using GeekBurger.Products.Contract;
 using GeekBurger.StoreCatalog.WebAPI.Helpers;
 using GeekBurger.StoreCatalog.WebAPI.Repository;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;

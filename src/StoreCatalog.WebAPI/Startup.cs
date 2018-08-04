@@ -9,6 +9,7 @@ using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
 using GeekBurger.StoreCatalog.WebAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -61,7 +62,7 @@ namespace StoreCatalog.WebAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public async void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -80,6 +81,7 @@ namespace StoreCatalog.WebAPI
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var storeCatalogInitialize = scope.ServiceProvider.GetService<IStoreCatalogInitialization>();
+                await storeCatalogInitialize.InitializeStoreCatalog();
 
                 var receiveMessageServiceBus = scope.ServiceProvider.GetService<IReceiveMessageServiceBus>();                
             }            

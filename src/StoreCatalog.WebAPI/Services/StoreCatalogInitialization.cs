@@ -27,12 +27,10 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             _productionAreaService = productionAreaService;
             _productService = productService;
             _sendMessageServiceBus = sendMessageServiceBus;
-            _productRepository = productRepository;
-
-            Task.Run(async () => await InitializeStoreCatalog()).Wait();
+            _productRepository = productRepository;            
         }
 
-        private async Task InitializeStoreCatalog()
+        public async Task InitializeStoreCatalog()
         {
             try
             {

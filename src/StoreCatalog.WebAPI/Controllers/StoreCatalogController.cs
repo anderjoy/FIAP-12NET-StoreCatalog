@@ -9,6 +9,8 @@ using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using StoreCatalog.WebAPI.Models;
+using GeekBurguer.StoreCatalog.Contract;
+using GeekBurguer.Ingredients.Contracts;
 
 namespace StoreCatalog.WebAPI.Controllers
 {
@@ -59,11 +61,17 @@ namespace StoreCatalog.WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(string[] restrictions)
+        [Route("products")]
+        public async Task<IActionResult> Get(User user)
         {
-            
-            
+            var url = _configuration["ProductionAreas"];
+            var urlIngredients = _configuration["Ingredients"];
+            var areas = JsonConvert.DeserializeObject<IEnumerable<ProductionArea>>(await _httpClient.GetStringAsync(url));
+            var allowedAreas = areas.Where(area => user.Restrictions.All(restriction => area.Restrictions.Contains(restriction)));
+            var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<MergeProductsAndIngredients>> (await _httpClient.GetStringAsync(urlIngredients));
 
+            var allowedProducts = filteredProducts
+                .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
 
             //Grava os produtos no banco
             //await _storeContext.Products.AddRangeAsync(products);

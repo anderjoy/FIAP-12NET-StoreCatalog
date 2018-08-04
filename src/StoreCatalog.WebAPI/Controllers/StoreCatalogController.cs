@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using GeekBurger.Production.Contract.Model;
+using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
+using GeekBurguer.Ingredients.Contracts;
+using GeekBurguer.StoreCatalog.Contract;
 using Microsoft.AspNetCore.Mvc;
-using GeekBurger.Production.Contract.Model;
-using GeekBurger.Products.Contract;
-using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using StoreCatalog.WebAPI.Models;
-using GeekBurguer.StoreCatalog.Contract;
-using GeekBurguer.Ingredients.Contracts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace StoreCatalog.WebAPI.Controllers
 {
@@ -20,12 +20,15 @@ namespace StoreCatalog.WebAPI.Controllers
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly StoreContext _storeContext;
+        private readonly ISendMessageServiceBus _sendMessageServiceBus;
 
-        public StoreCatalogController(HttpClient httpClient, IConfiguration configuration, StoreContext storeContext)
+        public StoreCatalogController(HttpClient httpClient, IConfiguration configuration, StoreContext storeContext,
+            ISendMessageServiceBus sendMessageServiceBus)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _storeContext = storeContext ?? throw new ArgumentNullException(nameof(storeContext));
+            _sendMessageServiceBus = sendMessageServiceBus;
         }
 
         [Route("store/")]
@@ -81,11 +84,17 @@ namespace StoreCatalog.WebAPI.Controllers
 
                 var content = new StringContent(JsonConvert.SerializeObject(dados));
                 var result = await _httpClient.PostAsync($"{_configuration["API:Products"]}/byrestrictions", content);
-                var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<MergeProductsAndIngredients>>(await result.Content.ReadAsStringAsync());
+                var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<IngredientsRestrictionsResponse>>(await result.Content.ReadAsStringAsync());
 
                 var allowedProducts = filteredProducts
                     .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
 
+                //Manda pro service bus a mensagem
+                await _sendMessageServiceBus.SendUserWithLessOffer(new
+                {
+                    UserId = user.Id,
+                    user.Restrictions
+                });
                 return Ok(allowedProducts);
             }
             catch (HttpRequestException req)

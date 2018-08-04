@@ -64,20 +64,36 @@ namespace StoreCatalog.WebAPI.Controllers
         [Route("products")]
         public async Task<IActionResult> Get(User user)
         {
-            var url = _configuration["ProductionAreas"];
-            var urlIngredients = _configuration["Ingredients"];
-            var areas = JsonConvert.DeserializeObject<IEnumerable<ProductionArea>>(await _httpClient.GetStringAsync(url));
-            var allowedAreas = areas.Where(area => user.Restrictions.All(restriction => area.Restrictions.Contains(restriction)));
-            var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<MergeProductsAndIngredients>> (await _httpClient.GetStringAsync(urlIngredients));
+            try
+            {
+                var url = _configuration["ProductionAreas"];
+                var urlIngredients = _configuration["Ingredients"];
+                var areas = JsonConvert.DeserializeObject<IEnumerable<ProductionArea>>(await _httpClient.GetStringAsync(url));
+                var allowedAreas = areas.Where(area => user.Restrictions.All(restriction => area.Restrictions.Contains(restriction)));
+                //var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<MergeProductsAndIngredients>>(await _httpClient.GetStringAsync(urlIngredients));
 
-            var allowedProducts = filteredProducts
-                .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
+                //Monta os dados da requisicao
+                var dados = new
+                {
+                    user.Restrictions,
+                    StoreId = _configuration["StoreInfo:StoreId"]
+                };
 
-            //Grava os produtos no banco
-            //await _storeContext.Products.AddRangeAsync(products);
-            //await _storeContext.SaveChangesAsync();
+                var content = new StringContent(JsonConvert.SerializeObject(dados));
+                var result = await _httpClient.PostAsync($"{_configuration["API:Products"]}/byrestrictions", content);
+                var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<MergeProductsAndIngredients>>(await result.Content.ReadAsStringAsync());
 
-            return Ok();
+                var allowedProducts = filteredProducts
+                    .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
+
+                return Ok(allowedProducts);
+            }
+            catch (HttpRequestException req)
+            {
+
+                throw;
+            }
+
         }
     }
 }

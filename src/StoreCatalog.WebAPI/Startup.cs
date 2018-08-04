@@ -39,6 +39,7 @@ namespace StoreCatalog.WebAPI
             services.AddScoped<IProductionAreaRepository, ProductionAreaRepository>();
 
             services.AddScoped<ISendMessageServiceBus, SendMessageServiceBus>();
+            services.AddScoped<IReceiveMessageServiceBus, ReceiveMessageServiceBus>();
 
             services.AddScoped<IStoreCatalogInitialization, StoreCatalogInitialization>();
 
@@ -79,6 +80,8 @@ namespace StoreCatalog.WebAPI
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var storeCatalogInitialize = scope.ServiceProvider.GetService<IStoreCatalogInitialization>();
+
+                var receiveMessageServiceBus = scope.ServiceProvider.GetService<IReceiveMessageServiceBus>();                
             }            
         }
     }

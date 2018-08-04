@@ -1,4 +1,5 @@
-﻿using GeekBurger.Production.Contract.Model;
+﻿using GeekBurger.Productions.Contract;
+using GeekBurger.StoreCatalog.WebAPI.Helpers;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using StoreCatalog.WebAPI.Models;
@@ -23,46 +24,40 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
 
         public async Task<IList<ProductionAreas>> GetProductionAreaAsync()
         {
-            ProductionArea[] areas = null;
+            ProductionAreaToGet[] areas = null;
 
             try
             {
-                areas = JsonConvert.DeserializeObject<ProductionArea[]>(await _httpClient.GetStringAsync(_configuration["API:ProductionAreas"]));
+                areas = JsonConvert.DeserializeObject<ProductionAreaToGet[]>(await _httpClient.GetStringAsync(_configuration["API:ProductionAreas"]));
             }
             catch (HttpRequestException)
             {
                 //Falha ao acessar o microserviço das áreas de produção
 
-                areas = new ProductionArea[]
+                areas = new ProductionAreaToGet[]
                 {
-                    new ProductionArea()
+                    new ProductionAreaToGet()
                     {
-                        ProductionId = Guid.NewGuid(),
+                        ProductionAreaId = Guid.NewGuid(),
                         Restrictions = new List<string>() {"soy", "dairy", "gluten", "sugar"},
                         On = true
                     },
-                    new ProductionArea()
+                    new ProductionAreaToGet()
                     {
-                        ProductionId = Guid.NewGuid(),
+                        ProductionAreaId = Guid.NewGuid(),
                         Restrictions = new List<string>(),
                         On = true
                     },
-                    new ProductionArea()
+                    new ProductionAreaToGet()
                     {
-                        ProductionId = Guid.NewGuid(),
+                        ProductionAreaId = Guid.NewGuid(),
                         Restrictions = new List<string>() {"soy"},
                         On = true
                     }
                 };
             }
 
-            return areas.Select(x => new ProductionAreas()
-            {
-                Id = x.ProductionId,
-                Name = "",
-                Restrictions = string.Join(',', x.Restrictions),
-                Status = x.On
-            }).ToList() ;
+            return areas.Select(x => x.ToProductionAreas()).ToList();
         }
     }
 }

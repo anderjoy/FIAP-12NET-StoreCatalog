@@ -9,5 +9,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Repository
         Task UpsertProductAsync(Product product);
 
         Task UpsertRangeProductAsync(IList<Product> products);
+
+        Task DeleteAsync(Product product);
     }
 }

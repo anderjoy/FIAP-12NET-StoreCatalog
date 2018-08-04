@@ -16,6 +16,17 @@ namespace GeekBurger.StoreCatalog.WebAPI.Repository
             _context = context;
         }
 
+        public async Task DeleteAsync(Product product)
+        {
+            var _product = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
+
+            if (_product != null)
+            {
+                _context.Remove(_product);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task UpsertProductAsync(Product product)
         {
             if (_context.Products.AsNoTracking().Any(x => x.Id == product.Id))

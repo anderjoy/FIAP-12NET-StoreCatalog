@@ -1,4 +1,5 @@
 ﻿using GeekBurger.Products.Contract;
+using GeekBurger.StoreCatalog.WebAPI.Helpers;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using StoreCatalog.WebAPI.Models;
@@ -67,16 +68,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
                 };
             }
 
-            return productsToGet.Select(x => new Product()
-            {
-                Id = x.ProductId,
-                Items = x.Items.Select(i => new Item()
-                {
-                    Id = i.ItemId,
-                    Ingredients = ""
-                }).ToList()
-            }).ToList();
-
+            return productsToGet.Select(x => x.ToProduct()).ToList();
         }
     }
 }

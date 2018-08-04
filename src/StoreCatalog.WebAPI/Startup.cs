@@ -36,6 +36,7 @@ namespace StoreCatalog.WebAPI
             services.AddScoped<IProductionAreaService, ProductionAreaService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductionAreaRepository, ProductionAreaRepository>();
 
             services.AddScoped<ISendMessageServiceBus, SendMessageServiceBus>();
 

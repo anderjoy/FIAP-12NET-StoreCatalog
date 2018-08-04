@@ -1,12 +1,7 @@
-﻿using GeekBurger.Production.Contract.Model;
-using GeekBurger.Products.Contract;
-using GeekBurger.StoreCatalog.WebAPI.Repository;
+﻿using GeekBurger.StoreCatalog.WebAPI.Repository;
 using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 

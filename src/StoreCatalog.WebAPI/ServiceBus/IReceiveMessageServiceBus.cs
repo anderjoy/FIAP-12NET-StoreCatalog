@@ -7,6 +7,6 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
 {
     public interface IReceiveMessageServiceBus
     {
-        void RegisterOnMessageHandlerAndReceiveMessages();
+        
     }
 }

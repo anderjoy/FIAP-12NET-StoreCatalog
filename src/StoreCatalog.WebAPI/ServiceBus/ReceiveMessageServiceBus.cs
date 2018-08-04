@@ -6,8 +6,6 @@ using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +44,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
             RegisterOnMessageHandlerAndReceiveMessages();
         }
 
-        public void RegisterOnMessageHandlerAndReceiveMessages()
+        private void RegisterOnMessageHandlerAndReceiveMessages()
         {
             var messageHandlerOptions = new MessageHandlerOptions(ExceptionReceivedHandler)
             {

@@ -3,6 +3,7 @@ using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
 using GeekBurguer.Ingredients.Contracts;
 using GeekBurguer.StoreCatalog.Contract;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using StoreCatalog.WebAPI.Models;
@@ -19,15 +20,15 @@ namespace StoreCatalog.WebAPI.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        private readonly StoreContext _storeContext;
         private readonly ISendMessageServiceBus _sendMessageServiceBus;
+        private readonly StoreContext _context;
 
         public StoreCatalogController(HttpClient httpClient, IConfiguration configuration, StoreContext storeContext,
             ISendMessageServiceBus sendMessageServiceBus)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _storeContext = storeContext ?? throw new ArgumentNullException(nameof(storeContext));
+            _context = _context ?? throw new ArgumentNullException(nameof(storeContext));
             _sendMessageServiceBus = sendMessageServiceBus;
         }
 
@@ -68,10 +69,9 @@ namespace StoreCatalog.WebAPI.Controllers
         public async Task<IActionResult> Get(User user)
         {
             try
-            {
-                var url = _configuration["ProductionAreas"];
+            {                
                 var urlIngredients = _configuration["Ingredients"];
-                var areas = JsonConvert.DeserializeObject<IEnumerable<ProductionAreaToGet>>(await _httpClient.GetStringAsync(url));
+                var areas = await _context.ProductionAreas.ToListAsync();                
                 var allowedAreas = areas.Where(area => user.Restrictions.All(restriction => area.Restrictions.Contains(restriction)));
                 //var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<MergeProductsAndIngredients>>(await _httpClient.GetStringAsync(urlIngredients));
 

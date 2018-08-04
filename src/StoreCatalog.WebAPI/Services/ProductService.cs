@@ -1,8 +1,10 @@
 ﻿using GeekBurger.Products.Contract;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using StoreCatalog.WebAPI.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -19,19 +21,19 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             _httpClient = httpClient;
         }
 
-        public async Task<ProductToGet[]> GetProductsAsync()
+        public async Task<IList<Product>> GetProductsAsync()
         {
-            ProductToGet[] products = null;
+            ProductToGet[] productsToGet = null;
 
             try
             {
-                products = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["API:Products"]));
+                productsToGet = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["API:Products"]));
             }
             catch (HttpRequestException)
             {
                 //Falha ao acessar o microserviço de produtos
 
-                products = new ProductToGet[]
+                productsToGet = new ProductToGet[]
                 {
                     new ProductToGet()
                     {
@@ -65,7 +67,16 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
                 };
             }
 
-            return products;
+            return productsToGet.Select(x => new Product()
+            {
+                Id = x.ProductId,
+                Items = x.Items.Select(i => new Item()
+                {
+                    Id = i.ItemId,
+                    Ingredients = new List<string>()
+                })
+            }).ToList();
+
         }
     }
 }

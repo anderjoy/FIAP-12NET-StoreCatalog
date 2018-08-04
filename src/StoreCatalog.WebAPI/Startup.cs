@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
+using GeekBurger.StoreCatalog.WebAPI.Repository;
+using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
 using GeekBurger.StoreCatalog.WebAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,10 +33,13 @@ namespace StoreCatalog.WebAPI
             services.AddDbContext<StoreContext>();
             services.AddSingleton(f => new HttpClient());
 
-            services.AddTransient<IProductionAreaService, ProductionAreaService>();
-            services.AddTransient<IProductService, ProductService>();
+            services.AddScoped<IProductionAreaService, ProductionAreaService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductRepository, ProductRepository>();
 
-            services.AddSingleton<IStoreCatalogInitialization, StoreCatalogInitialization>();
+            services.AddScoped<ISendMessageServiceBus, SendMessageServiceBus>();
+
+            services.AddScoped<IStoreCatalogInitialization, StoreCatalogInitialization>();
 
             services.AddSwaggerGen(c =>
             {
@@ -70,7 +75,7 @@ namespace StoreCatalog.WebAPI
 
             app.UseMvc();
 
-            var storeCatalogInitialize = app.ApplicationServices.GetService<IStoreCatalogInitialization>();
+            var storeCatalogInitialize = app.ApplicationServices.GetRequiredService<IStoreCatalogInitialization>();
         }
     }
 }

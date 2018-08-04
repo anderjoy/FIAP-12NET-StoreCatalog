@@ -34,33 +34,8 @@ namespace StoreCatalog.WebAPI.Controllers
 
         [Route("store/")]
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            //verificar se tem produtos, areas blablabla
-            //Verifica as areas
-            //var areas = JsonConvert.DeserializeObject<ProductionArea[]>(await _httpClient.GetStringAsync(_configuration["ProductionAreas"]));
-            //var products = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["Products"]));
-
-            //foreach (var product in products)
-            //{
-            //    if (!_storeContext.Products.Any(c => c.Name == product.Name))
-            //    {
-            //        var productUpsert = new ProductToUpsert()
-            //        {
-            //            Image = product.Image,
-            //            Name = product.Name,
-            //            Price = product.Price,
-
-            //        };
-            //        _storeContext.Products.Add(new ProductToUpsert()
-            //        {
-
-
-            //        });
-            //    }
-
-            //}
-
             return Ok();
         }
 

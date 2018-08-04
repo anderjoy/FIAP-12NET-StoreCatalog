@@ -30,42 +30,49 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             {
                 productsToGet = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["API:Products"]));
             }
-            catch (HttpRequestException)
+            catch (Exception)
             {
                 //Falha ao acessar o microserviço de produtos
 
-                productsToGet = new ProductToGet[]
+                if (_configuration["API:mocked"] == "true")
                 {
-                    new ProductToGet()
+                    productsToGet = new ProductToGet[]
                     {
-                        ProductId = Guid.NewGuid(),
-                        Items = new List<ItemToGet>()
+                        new ProductToGet()
                         {
-                            new ItemToGet() { ItemId = Guid.NewGuid(), Name = "beef" },
-                            new ItemToGet() { ItemId = Guid.NewGuid(), Name = "mustard" },
-                            new ItemToGet() { ItemId = Guid.NewGuid(), Name = "bread" }
-                        }
-                    },
-                    new ProductToGet()
-                    {
-                        ProductId = Guid.NewGuid(),
-                        Items = new List<ItemToGet>()
+                            ProductId = Guid.NewGuid(),
+                            Items = new List<ItemToGet>()
+                            {
+                                new ItemToGet() { ItemId = Guid.NewGuid(), Name = "beef" },
+                                new ItemToGet() { ItemId = Guid.NewGuid(), Name = "mustard" },
+                                new ItemToGet() { ItemId = Guid.NewGuid(), Name = "bread" }
+                            }
+                        },
+                        new ProductToGet()
                         {
-                            new ItemToGet() { ItemId = Guid.NewGuid(), Name = "ketchup" },
-                            new ItemToGet() { ItemId = Guid.NewGuid(), Name = "bread" }
-                        }
-                    },
-                    new ProductToGet()
-                    {
-                        ProductId = Guid.NewGuid(),
-                        Items = new List<ItemToGet>()
+                            ProductId = Guid.NewGuid(),
+                            Items = new List<ItemToGet>()
+                            {
+                                new ItemToGet() { ItemId = Guid.NewGuid(), Name = "ketchup" },
+                                new ItemToGet() { ItemId = Guid.NewGuid(), Name = "bread" }
+                            }
+                        },
+                        new ProductToGet()
                         {
-                            new ItemToGet() { ItemId = Guid.NewGuid(), Name = "salmon" },
-                            new ItemToGet() { ItemId = Guid.NewGuid(), Name = "onion wings" },
-                            new ItemToGet() { ItemId = Guid.NewGuid(), Name = "whole bread" }
+                            ProductId = Guid.NewGuid(),
+                            Items = new List<ItemToGet>()
+                            {
+                                new ItemToGet() { ItemId = Guid.NewGuid(), Name = "salmon" },
+                                new ItemToGet() { ItemId = Guid.NewGuid(), Name = "onion wings" },
+                                new ItemToGet() { ItemId = Guid.NewGuid(), Name = "whole bread" }
+                            }
                         }
-                    }
-                };
+                    };
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return productsToGet.Select(x => x.ToProduct()).ToList();

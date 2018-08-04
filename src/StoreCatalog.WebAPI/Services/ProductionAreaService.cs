@@ -30,31 +30,37 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             {
                 areas = JsonConvert.DeserializeObject<ProductionAreaToGet[]>(await _httpClient.GetStringAsync(_configuration["API:ProductionAreas"]));
             }
-            catch (HttpRequestException)
+            catch (Exception)
             {
                 //Falha ao acessar o microserviço das áreas de produção
-
-                areas = new ProductionAreaToGet[]
+                if (_configuration["API:mocked"] == "true")
                 {
-                    new ProductionAreaToGet()
+                    areas = new ProductionAreaToGet[]
                     {
-                        ProductionAreaId = Guid.NewGuid(),
-                        Restrictions = new List<string>() {"soy", "dairy", "gluten", "sugar"},
-                        On = true
-                    },
-                    new ProductionAreaToGet()
-                    {
-                        ProductionAreaId = Guid.NewGuid(),
-                        Restrictions = new List<string>(),
-                        On = true
-                    },
-                    new ProductionAreaToGet()
-                    {
-                        ProductionAreaId = Guid.NewGuid(),
-                        Restrictions = new List<string>() {"soy"},
-                        On = true
-                    }
-                };
+                        new ProductionAreaToGet()
+                        {
+                            ProductionAreaId = Guid.NewGuid(),
+                            Restrictions = new List<string>() {"soy", "dairy", "gluten", "sugar"},
+                            On = true
+                        },
+                        new ProductionAreaToGet()
+                        {
+                            ProductionAreaId = Guid.NewGuid(),
+                            Restrictions = new List<string>(),
+                            On = true
+                        },
+                        new ProductionAreaToGet()
+                        {
+                            ProductionAreaId = Guid.NewGuid(),
+                            Restrictions = new List<string>() {"soy"},
+                            On = true
+                        }
+                    };
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return areas.Select(x => x.ToProductionAreas()).ToList();

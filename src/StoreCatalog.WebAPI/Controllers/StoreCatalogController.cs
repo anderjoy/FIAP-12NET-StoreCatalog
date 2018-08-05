@@ -28,7 +28,7 @@ namespace StoreCatalog.WebAPI.Controllers
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _context = _context ?? throw new ArgumentNullException(nameof(storeContext));
+            _context = storeContext ?? throw new ArgumentNullException(nameof(storeContext));
             _sendMessageServiceBus = sendMessageServiceBus;
         }
 
@@ -59,18 +59,26 @@ namespace StoreCatalog.WebAPI.Controllers
 
                 var content = new StringContent(JsonConvert.SerializeObject(dados));
                 var result = await _httpClient.PostAsync($"{_configuration["API:Products"]}/byrestrictions", content);
-                var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<IngredientsRestrictionsResponse>>(await result.Content.ReadAsStringAsync());
 
-                var allowedProducts = filteredProducts
-                    .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
-
-                //Manda pro service bus a mensagem
-                await _sendMessageServiceBus.SendUserWithLessOffer(new
+                if (result.IsSuccessStatusCode)
                 {
-                    UserId = user.Id,
-                    user.Restrictions
-                });
-                return Ok(allowedProducts);
+                    var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<IngredientsRestrictionsResponse>>(await result.Content.ReadAsStringAsync());
+
+                    var allowedProducts = filteredProducts
+                        .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
+
+                    //Manda pro service bus a mensagem
+                    await _sendMessageServiceBus.SendUserWithLessOffer(new
+                    {
+                        UserId = user.Id,
+                        user.Restrictions
+                    });
+                    return Ok(allowedProducts);
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
             catch (HttpRequestException req)
             {

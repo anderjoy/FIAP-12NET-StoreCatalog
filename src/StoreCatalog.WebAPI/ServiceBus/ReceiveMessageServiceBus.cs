@@ -16,9 +16,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
 {
     public class ReceiveMessageServiceBus : IReceiveMessageServiceBus
     {
-        private readonly IConfiguration _configuration;
-        private readonly IProductRepository _productRepository;
-        private readonly IProductionAreaRepository _productionAreaRepository;
+        private readonly IConfiguration _configuration;        
 
         static ISubscriptionClient _subscriptionClientProductChanged;
         static ISubscriptionClient _subscriptionClientProductionAreaChanged;
@@ -28,9 +26,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
         //    IProductionAreaRepository productionAreaRepository)
         public ReceiveMessageServiceBus(IConfiguration configuration)
         {
-            _configuration = configuration;
-            _productRepository = new ProductRepository(new StoreContext());
-            _productionAreaRepository = new ProductionAreaRepository(new StoreContext());
+            _configuration = configuration;           
 
             _subscriptionClientProductChanged = new SubscriptionClient(
                 _configuration["serviceBus:connectionString"],
@@ -65,20 +61,27 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
             {
                 ProductChangedMessage productContract = JsonConvert.DeserializeObject<ProductChangedMessage>(Encoding.UTF8.GetString(message.Body));
 
-                switch (productContract.State)
+                using (StoreContext context = new StoreContext())
                 {
-                    case ProductState.Deleted:
-                        await _productRepository.DeleteAsync(productContract.Product.ToProduct());
-                        break;
-                    case ProductState.Modified:
-                        await _productRepository.UpsertProductAsync(productContract.Product.ToProduct());
-                        break;
-                    case ProductState.Added:
-                        await _productRepository.UpsertProductAsync(productContract.Product.ToProduct());
-                        break;
-                    default:
-                        break;
+                    var _productRepository = new ProductRepository(new StoreContext());
+
+                    switch (productContract.State)
+                    {
+                        case ProductState.Deleted:
+                            await _productRepository.DeleteAsync(productContract.Product.ToProduct());
+                            break;
+                        case ProductState.Modified:
+                            await _productRepository.UpsertProductAsync(productContract.Product.ToProduct());
+                            break;
+                        case ProductState.Added:
+                            await _productRepository.UpsertProductAsync(productContract.Product.ToProduct());
+                            break;
+                        default:
+                            break;
+                    }
                 }
+
+                await _subscriptionClientProductChanged.CompleteAsync(message.SystemProperties.LockToken);
 
             }
             catch (Exception)
@@ -94,7 +97,14 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
             {
                 ProductionAreaChangedMessage productionAreaChanged = JsonConvert.DeserializeObject<ProductionAreaChangedMessage>(Encoding.UTF8.GetString(message.Body));
 
-                await _productionAreaRepository.UpsertAsync(productionAreaChanged.ProductionArea.ToProductionAreas());
+                using (StoreContext context = new StoreContext())
+                {
+                    var _productionAreaRepository = new ProductionAreaRepository(context);
+
+                    await _productionAreaRepository.UpsertAsync(productionAreaChanged.ProductionArea.ToProductionAreas());
+                }
+
+                await _subscriptionClientProductionAreaChanged.CompleteAsync(message.SystemProperties.LockToken);
             }
             catch (Exception)
             {

@@ -67,12 +67,15 @@ namespace StoreCatalog.WebAPI.Controllers
                     var allowedProducts = filteredProducts
                         .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
 
-                    //Manda pro service bus a mensagem
-                    await _sendMessageServiceBus.SendUserWithLessOffer(new
+                    if (allowedProducts.Count() <= 2)
                     {
-                        UserId = user.Id,
-                        user.Restrictions
-                    });
+                        //Manda pro service bus a mensagem
+                        await _sendMessageServiceBus.SendUserWithLessOffer(new
+                        {
+                            UserId = user.Id,
+                            user.Restrictions
+                        });
+                    }
                     return Ok(allowedProducts);
                 }
                 else

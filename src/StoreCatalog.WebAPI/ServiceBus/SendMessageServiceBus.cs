@@ -24,7 +24,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
             connectionString = _configuration["serviceBus:connectionString"];
         }
 
-        private async Task CreateTopicAsync()
+        private async Task EnsureTopicIsCreated()
         {
             var credentials = SdkContext.AzureCredentialsFactory.FromServicePrincipal(
                 _configuration["serviceBus:clientId"],
@@ -91,7 +91,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
         {
             try
             {
-                await CreateTopicAsync();
+                await EnsureTopicIsCreated();
 
                 var topicClient = new TopicClient(connectionString, "StoreCatalogReady");
 
@@ -111,7 +111,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
         {
             try
             {
-                await CreateTopicAsync();
+                await EnsureTopicIsCreated();
 
                 var topicClient = new TopicClient(connectionString, "UserWithLessOffer");
                 

@@ -1,8 +1,8 @@
 ﻿using GeekBurger.Productions.Contract;
 using GeekBurger.StoreCatalog.WebAPI.Helpers;
+using GeekBurger.StoreCatalog.WebAPI.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using StoreCatalog.WebAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using GeekBurger.StoreCatalog.WebAPI.Models;
 using GeekBurger.StoreCatalog.WebAPI.Repository;
 using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
 using GeekBurger.StoreCatalog.WebAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using StoreCatalog.WebAPI.Models;
 using Swashbuckle.AspNetCore.Swagger;
+using System.Net.Http;
 
 namespace StoreCatalog.WebAPI
 {
@@ -38,11 +31,13 @@ namespace StoreCatalog.WebAPI
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductionAreaRepository, ProductionAreaRepository>();
-
+            
             services.AddScoped<ISendMessageServiceBus, SendMessageServiceBus>();
             services.AddScoped<IReceiveMessageServiceBus, ReceiveMessageServiceBus>();
 
             services.AddScoped<IStoreCatalogInitialization, StoreCatalogInitialization>();
+
+            services.AddSingleton<ILogServiceBus, LogServiceBus>();
 
             services.AddSwaggerGen(c =>
             {

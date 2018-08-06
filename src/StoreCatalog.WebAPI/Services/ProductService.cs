@@ -1,8 +1,9 @@
 ﻿using GeekBurger.Products.Contract;
 using GeekBurger.StoreCatalog.WebAPI.Helpers;
+using GeekBurger.StoreCatalog.WebAPI.Models;
+using GeekBurguer.Ingredients.Contracts;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using StoreCatalog.WebAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,6 +77,39 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             }
 
             return productsToGet.Select(x => x.ToProduct()).ToList();
+        }
+
+        public async Task<IList<Product>> GetProductsByRestrictionsAsync(string[] Restrictions)
+        {
+            IList<IngredientsRestrictionsResponse> ingredientsRestrictions = null;
+
+            try
+            {
+                IngredientsRestrictionsRequest ingredientsRestrictionsRequest = new IngredientsRestrictionsRequest()
+                {
+                    Restrictions = Restrictions.ToList(),
+                    StoreId = Guid.Parse(_configuration["StoreInfo:StoreId"])
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(ingredientsRestrictionsRequest));
+                var result = await _httpClient.PostAsync($"{_configuration["API:Products"]}/byrestrictions", content);
+
+                if (result.IsSuccessStatusCode)
+                {
+                    ingredientsRestrictions = JsonConvert.DeserializeObject<IList<IngredientsRestrictionsResponse>>(await result.Content.ReadAsStringAsync());
+                }
+                else
+                {
+                    throw new Exception(result.StatusCode.ToString());
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return ingredientsRestrictions.Select(x => x.ToProduct()).ToList();
         }
     }
 }

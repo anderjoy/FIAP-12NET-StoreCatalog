@@ -1,14 +1,11 @@
-﻿using GeekBurger.Productions.Contract;
+﻿using GeekBurger.StoreCatalog.WebAPI.Models;
 using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
-using GeekBurguer.Ingredients.Contracts;
+using GeekBurger.StoreCatalog.WebAPI.Services;
 using GeekBurguer.StoreCatalog.Contract;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using StoreCatalog.WebAPI.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -21,15 +18,18 @@ namespace StoreCatalog.WebAPI.Controllers
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly ISendMessageServiceBus _sendMessageServiceBus;
+        private readonly IProductService _productService;
         private readonly StoreContext _context;
 
         public StoreCatalogController(HttpClient httpClient, IConfiguration configuration, StoreContext storeContext,
-            ISendMessageServiceBus sendMessageServiceBus)
+            ISendMessageServiceBus sendMessageServiceBus, IProductService productService)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _context = storeContext ?? throw new ArgumentNullException(nameof(storeContext));
+
             _sendMessageServiceBus = sendMessageServiceBus;
+            _productService = productService;
         }
 
         [Route("store/")]
@@ -57,33 +57,24 @@ namespace StoreCatalog.WebAPI.Controllers
                     StoreId = _configuration["StoreInfo:StoreId"]
                 };
 
-                var content = new StringContent(JsonConvert.SerializeObject(dados));
-                var result = await _httpClient.PostAsync($"{_configuration["API:Products"]}/byrestrictions", content);
+                var filteredProducts = await _productService.GetProductsByRestrictionsAsync(user.Restrictions);
 
-                if (result.IsSuccessStatusCode)
+                var allowedProducts = filteredProducts
+                    .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
+
+                if (allowedProducts.Count() <= 2)
                 {
-                    var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<IngredientsRestrictionsResponse>>(await result.Content.ReadAsStringAsync());
-
-                    var allowedProducts = filteredProducts
-                        .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
-
-                    if (allowedProducts.Count() <= 2)
+                    //Manda pro service bus a mensagem
+                    await _sendMessageServiceBus.SendUserWithLessOffer(new
                     {
-                        //Manda pro service bus a mensagem
-                        await _sendMessageServiceBus.SendUserWithLessOffer(new
-                        {
-                            UserId = user.Id,
-                            user.Restrictions
-                        });
-                    }
-                    return Ok(allowedProducts);
+                        UserId = user.Id,
+                        user.Restrictions
+                    });
                 }
-                else
-                {
-                    return BadRequest();
-                }
+
+                return Ok(allowedProducts);
             }
-            catch (HttpRequestException req)
+            catch (HttpRequestException)
             {
 
                 throw;

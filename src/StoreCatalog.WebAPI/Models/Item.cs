@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace StoreCatalog.WebAPI.Models
+namespace GeekBurger.StoreCatalog.WebAPI.Models
 {
     public class Item
     {

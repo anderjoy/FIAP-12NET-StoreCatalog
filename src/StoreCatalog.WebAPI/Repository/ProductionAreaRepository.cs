@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using StoreCatalog.WebAPI.Models;
+﻿using GeekBurger.StoreCatalog.WebAPI.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,6 +28,14 @@ namespace GeekBurger.StoreCatalog.WebAPI.Repository
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task UpsertRangeAsync(IList<ProductionAreas> productionAreas)
+        {
+            foreach (var item in productionAreas)
+            {
+                await UpsertAsync(item);
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using GeekBurger.Productions.Contract;
-using StoreCatalog.WebAPI.Models;
+using GeekBurger.StoreCatalog.WebAPI.Models;
 
 namespace GeekBurger.StoreCatalog.WebAPI.Helpers
 {

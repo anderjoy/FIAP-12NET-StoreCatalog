@@ -1,4 +1,4 @@
-﻿using StoreCatalog.WebAPI.Models;
+﻿using GeekBurger.StoreCatalog.WebAPI.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,9 +6,9 @@ namespace GeekBurger.StoreCatalog.WebAPI.Repository
 {
     public interface IProductRepository
     {
-        Task UpsertProductAsync(Product product);
+        Task UpsertAsync(Product product);
 
-        Task UpsertRangeProductAsync(IList<Product> products);
+        Task UpsertRangeAsync(IList<Product> products);
 
         Task DeleteAsync(Product product);
     }

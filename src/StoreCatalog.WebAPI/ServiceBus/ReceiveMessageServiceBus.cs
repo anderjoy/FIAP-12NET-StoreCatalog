@@ -1,12 +1,11 @@
 ﻿using GeekBurger.Productions.Contract;
 using GeekBurger.Products.Contract;
 using GeekBurger.StoreCatalog.WebAPI.Helpers;
+using GeekBurger.StoreCatalog.WebAPI.Models;
 using GeekBurger.StoreCatalog.WebAPI.Repository;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using StoreCatalog.WebAPI.Models;
 using System;
 using System.Text;
 using System.Threading;
@@ -71,10 +70,10 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
                             await _productRepository.DeleteAsync(productContract.Product.ToProduct());
                             break;
                         case ProductState.Modified:
-                            await _productRepository.UpsertProductAsync(productContract.Product.ToProduct());
+                            await _productRepository.UpsertAsync(productContract.Product.ToProduct());
                             break;
                         case ProductState.Added:
-                            await _productRepository.UpsertProductAsync(productContract.Product.ToProduct());
+                            await _productRepository.UpsertAsync(productContract.Product.ToProduct());
                             break;
                         default:
                             break;

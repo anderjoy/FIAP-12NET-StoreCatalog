@@ -1,9 +1,8 @@
-﻿using System;
+﻿using GeekBurger.StoreCatalog.WebAPI.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using StoreCatalog.WebAPI.Models;
 
 namespace GeekBurger.StoreCatalog.WebAPI.Repository
 {
@@ -27,7 +26,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Repository
             }
         }
 
-        public async Task UpsertProductAsync(Product product)
+        public async Task UpsertAsync(Product product)
         {
             if (_context.Products.AsNoTracking().Any(x => x.Id == product.Id))
             {
@@ -43,11 +42,11 @@ namespace GeekBurger.StoreCatalog.WebAPI.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpsertRangeProductAsync(IList<Product> products)
+        public async Task UpsertRangeAsync(IList<Product> products)
         {
             foreach (var product in products)
             {
-                await UpsertProductAsync(product);
+                await UpsertAsync(product);
             }
         }
     }

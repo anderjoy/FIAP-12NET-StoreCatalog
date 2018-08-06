@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace StoreCatalog.WebAPI.Models
+namespace GeekBurger.StoreCatalog.WebAPI.Models
 {
     public class StoreContext : DbContext
     {

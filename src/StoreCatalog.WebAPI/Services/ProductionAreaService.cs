@@ -1,6 +1,7 @@
 ﻿using GeekBurger.Productions.Contract;
 using GeekBurger.StoreCatalog.WebAPI.Helpers;
 using GeekBurger.StoreCatalog.WebAPI.Models;
+using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -15,11 +16,13 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
     {
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
+        private readonly ILogServiceBus _logServiceBus;
 
-        public ProductionAreaService(IConfiguration configuration, HttpClient httpClient)
+        public ProductionAreaService(IConfiguration configuration, HttpClient httpClient, ILogServiceBus logServiceBus)
         {
             _configuration = configuration;
             _httpClient = httpClient;
+            _logServiceBus = logServiceBus;
         }
 
         public async Task<IList<ProductionAreas>> GetProductionAreaAsync()
@@ -28,13 +31,19 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
 
             try
             {
+                await _logServiceBus.SendMessagesAsync("Recuperando as áreas de produção...");
+
                 areas = JsonConvert.DeserializeObject<ProductionAreaToGet[]>(await _httpClient.GetStringAsync(_configuration["API:ProductionAreas"]));
             }
-            catch (Exception)
+            catch (Exception E)
             {
+                await _logServiceBus.SendMessagesAsync($"Falha ao recuperar os dados das áreas de produção, segue a descrição \"{E.Message}\".");
+
                 //Falha ao acessar o microserviço das áreas de produção
                 if (_configuration["API:mocked"] == "true")
                 {
+                    await _logServiceBus.SendMessagesAsync($"Criando dados fakes para área de produção");
+
                     areas = new ProductionAreaToGet[]
                     {
                         new ProductionAreaToGet()

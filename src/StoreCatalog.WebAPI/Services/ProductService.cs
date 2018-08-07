@@ -1,6 +1,7 @@
 ﻿using GeekBurger.Products.Contract;
 using GeekBurger.StoreCatalog.WebAPI.Helpers;
 using GeekBurger.StoreCatalog.WebAPI.Models;
+using GeekBurger.StoreCatalog.WebAPI.ServiceBus;
 using GeekBurguer.Ingredients.Contracts;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -16,11 +17,13 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
     {
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
+        private readonly ILogServiceBus _logServiceBus;
 
-        public ProductService(IConfiguration configuration, HttpClient httpClient)
+        public ProductService(IConfiguration configuration, HttpClient httpClient, ILogServiceBus logServiceBus)
         {
             _configuration = configuration;
             _httpClient = httpClient;
+            _logServiceBus = logServiceBus;
         }
 
         public async Task<IList<Product>> GetProductsAsync()
@@ -29,14 +32,20 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
 
             try
             {
-                productsToGet = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync(_configuration["API:Products"]));
+                await _logServiceBus.SendMessagesAsync($"Recuperando produtos \"storeName = {_configuration["StoreInfo:StoreName"]}\"...");
+
+                productsToGet = JsonConvert.DeserializeObject<ProductToGet[]>(await _httpClient.GetStringAsync($"{_configuration["API:Products"]}/?storeName={_configuration["StoreInfo:StoreName"]}"));
             }
-            catch (Exception)
+            catch (Exception E)
             {
+                await _logServiceBus.SendMessagesAsync($"Falha ao recuperar os dados dos produtos, segue a descrição \"{E.Message}\".");
+
                 //Falha ao acessar o microserviço de produtos
 
                 if (_configuration["API:mocked"] == "true")
                 {
+                    await _logServiceBus.SendMessagesAsync($"Criando dados fakes para produtos");
+
                     productsToGet = new ProductToGet[]
                     {
                         new ProductToGet()
@@ -105,8 +114,34 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             }
             catch (Exception)
             {
+                if (_configuration["API:mocked"] == "true")
+                {
+                    var listProducts = new List<IngredientsRestrictionsResponse>()
+                    {
+                        new IngredientsRestrictionsResponse()
+                        {
+                            Ingredients = new List<string>() { "soy", "sugar" },
+                            ProductId = Guid.NewGuid()
+                        },
+                        new IngredientsRestrictionsResponse()
+                        {
+                            Ingredients = new List<string>() { "mustard", "onion" },
+                            ProductId = Guid.NewGuid()
+                        },
+                        new IngredientsRestrictionsResponse()
+                        {
+                            Ingredients = new List<string>() { "lettuce", "olive oil" },
+                            ProductId = Guid.NewGuid()
+                        }
+                    };
 
-                throw;
+                    ingredientsRestrictions = listProducts.Where(produto => produto.Ingredients.All(ingrediente => !Restrictions.Contains(ingrediente)))
+                        .ToList();
+                }
+                else
+                {
+                    throw;
+                }                    
             }
 
             return ingredientsRestrictions.Select(x => x.ToProduct()).ToList();

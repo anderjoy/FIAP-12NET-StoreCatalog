@@ -63,7 +63,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.ServiceBus
 
         public async Task SendMessagesAsync(string message)
         {
-            _messages.Add(GetMessage(message));
+            _messages.Add(GetMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")} -> {message}"));
 
             if (_lastTask != null && !_lastTask.IsCompleted)
                 return;

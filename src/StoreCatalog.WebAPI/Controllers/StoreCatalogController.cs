@@ -19,10 +19,11 @@ namespace StoreCatalog.WebAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly ISendMessageServiceBus _sendMessageServiceBus;
         private readonly IProductService _productService;
+        private readonly ILogServiceBus _logServiceBus;
         private readonly StoreContext _context;
 
         public StoreCatalogController(HttpClient httpClient, IConfiguration configuration, StoreContext storeContext,
-            ISendMessageServiceBus sendMessageServiceBus, IProductService productService)
+            ISendMessageServiceBus sendMessageServiceBus, IProductService productService, ILogServiceBus logServiceBus)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -30,12 +31,15 @@ namespace StoreCatalog.WebAPI.Controllers
 
             _sendMessageServiceBus = sendMessageServiceBus;
             _productService = productService;
+            _logServiceBus = logServiceBus;
         }
 
         [Route("store/")]
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            await _logServiceBus.SendMessagesAsync("Required method: /api/store/");
+
             return Ok();
         }
 
@@ -43,24 +47,20 @@ namespace StoreCatalog.WebAPI.Controllers
         [Route("products")]
         public async Task<IActionResult> Get(User user)
         {
+            await _logServiceBus.SendMessagesAsync("Required method: /api/products/");
+
             try
             {                
                 var urlIngredients = _configuration["Ingredients"];
                 var areas = await _context.ProductionAreas.ToListAsync();                
-                var allowedAreas = areas.Where(area => user.Restrictions.All(restriction => area.Restrictions.Contains(restriction)));
-                //var filteredProducts = JsonConvert.DeserializeObject<IEnumerable<MergeProductsAndIngredients>>(await _httpClient.GetStringAsync(urlIngredients));
-
-                //Monta os dados da requisicao
-                var dados = new
-                {
-                    user.Restrictions,
-                    StoreId = _configuration["StoreInfo:StoreId"]
-                };
+                var allowedAreas = areas.Where(area => user.Restrictions.All(restriction => area.Restrictions.Contains(restriction)))
+                    .ToList();
 
                 var filteredProducts = await _productService.GetProductsByRestrictionsAsync(user.Restrictions);
 
                 var allowedProducts = filteredProducts
-                    .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))));
+                    .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))))
+                    .ToList();
 
                 if (allowedProducts.Count() <= 2)
                 {
@@ -74,9 +74,9 @@ namespace StoreCatalog.WebAPI.Controllers
 
                 return Ok(allowedProducts);
             }
-            catch (HttpRequestException)
+            catch (Exception E)
             {
-
+                await _logServiceBus.SendMessagesAsync($"Falha ao processar a requisão \"/api/products\", segue a descrição \"{E.Message}\".");
                 throw;
             }
 

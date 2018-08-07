@@ -46,8 +46,19 @@ namespace GeekBurger.StoreCatalog.WebAPI.Repository
         {
             foreach (var product in products)
             {
-                await UpsertAsync(product);
+                if (_context.Products.AsNoTracking().Any(x => x.Id == product.Id))
+                {
+                    _context.Attach(product);
+                    _context.Update(product);
+                    //_context.Entry(product).State = EntityState.Modified;
+                }
+                else
+                {
+                    await _context.AddAsync(product);
+                }                
             }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

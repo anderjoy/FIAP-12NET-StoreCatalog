@@ -40,17 +40,17 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
         {
             try
             {
-                await _logServiceBus.SendMessagesAsync("Inicializando");
-
+                await _logServiceBus.SendMessagesAsync("Inicializando...");
                 var areas = await _productionAreaService.GetProductionAreaAsync();
                 var products = await _productService.GetProductsAsync();
 
+                await _logServiceBus.SendMessagesAsync("Atualizando base de dados...");
                 await _productRepository.UpsertRangeAsync(products);
                 await _productionAreaRepository.UpsertRangeAsync(areas);
 
                 await _sendMessageServiceBus.SendStoreCatalogReadyAsync();
 
-                await _logServiceBus.SendMessagesAsync("Inicializado com sucesso");
+                await _logServiceBus.SendMessagesAsync("Inicializado com sucesso.");
             }
             catch (Exception)
             {

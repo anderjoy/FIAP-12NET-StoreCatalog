@@ -6,9 +6,11 @@
     <RootNamespace>GeekBurguer.StoreCatalog.Contract</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.3</Version>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <FileVersion>1.0.3.0</FileVersion>
+    <Version>1.0.4</Version>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <FileVersion>1.0.4.0</FileVersion>
+    <Authors>Anderson e Alexandre</Authors>
+    <Description>Contrato para o StoreCatalog</Description>
   </PropertyGroup>
 
   <ItemGroup>

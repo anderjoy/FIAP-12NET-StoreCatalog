@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -36,6 +37,7 @@ namespace StoreCatalog.WebAPI.Controllers
 
         [Route("store/")]
         [HttpGet]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> Index()
         {
             await _logServiceBus.SendMessagesAsync("Required method: /api/store/");
@@ -45,6 +47,9 @@ namespace StoreCatalog.WebAPI.Controllers
 
         [HttpGet]
         [Route("products")]
+        [ProducesResponseType(200, Type = typeof(List<GeekBurger.StoreCatalog.WebAPI.Models.Product>))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> Get(User user)
         {
             await _logServiceBus.SendMessagesAsync("Required method: /api/products/");
@@ -71,6 +76,8 @@ namespace StoreCatalog.WebAPI.Controllers
                         user.Restrictions
                     });
                 }
+
+                
 
                 return Ok(allowedProducts);
             }

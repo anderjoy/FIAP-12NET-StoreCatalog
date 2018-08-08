@@ -75,9 +75,7 @@ namespace StoreCatalog.WebAPI.Controllers
                         UserId = user.Id,
                         user.Restrictions
                     });
-                }
-
-                
+                }                
 
                 return Ok(allowedProducts);
             }

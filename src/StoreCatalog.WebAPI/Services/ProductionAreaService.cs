@@ -31,9 +31,9 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
 
             try
             {
-                await _logServiceBus.SendMessagesAsync("Recuperando as áreas de produção...");
+                await _logServiceBus.SendMessagesAsync($"Recuperando as áreas de produção \"storeName = {_configuration["StoreInfo:StoreName"]}\"...");
 
-                areas = JsonConvert.DeserializeObject<ProductionAreaToGet[]>(await _httpClient.GetStringAsync(_configuration["API:ProductionAreas"]));
+                areas = JsonConvert.DeserializeObject<ProductionAreaToGet[]>(await _httpClient.GetStringAsync($"{_configuration["API:ProductionAreas"]}/?storeName={_configuration["StoreInfo:StoreName"]}"));
             }
             catch (Exception E)
             {

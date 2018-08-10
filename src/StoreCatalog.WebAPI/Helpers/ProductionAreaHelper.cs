@@ -11,7 +11,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Helpers
             {
                 Id = productionArea.ProductionAreaId,
                 Name = "",
-                Restrictions = string.Join(',', productionArea.Restrictions),
+                Restrictions = string.Join(',', productionArea.Restrictions).ToLower(),
                 Status = productionArea.On
             };
         }

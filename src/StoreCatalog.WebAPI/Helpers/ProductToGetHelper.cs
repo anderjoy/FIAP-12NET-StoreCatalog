@@ -26,7 +26,7 @@ namespace GeekBurger.StoreCatalog.WebAPI.Helpers
             return new Product()
             {
                 Id = ingredientsRestrictions.ProductId,
-                Ingredients = string.Join(',', ingredientsRestrictions.Ingredients),
+                Ingredients = string.Join(',', ingredientsRestrictions.Ingredients).ToLower(),
                 Items = new List<Item>()
             };
         }

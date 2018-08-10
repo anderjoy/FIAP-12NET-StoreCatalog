@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace GeekBurger.StoreCatalog.WebAPI.Services
@@ -88,20 +89,22 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             return productsToGet.Select(x => x.ToProduct()).ToList();
         }
 
-        public async Task<IList<Product>> GetProductsByRestrictionsAsync(string[] Restrictions)
+        public async Task<IList<Product>> GetProductsByRestrictionsAsync(string storeName, string[] Restrictions)
         {
             IList<IngredientsRestrictionsResponse> ingredientsRestrictions = null;
 
             try
             {
+                await _logServiceBus.SendMessagesAsync($"Recuperando produtos com as restrições \"{string.Join(',', Restrictions)} \"; storeName = {storeName}\"...");
+
                 IngredientsRestrictionsRequest ingredientsRestrictionsRequest = new IngredientsRestrictionsRequest()
                 {
                     Restrictions = Restrictions.ToList(),
-                    StoreId = Guid.Parse(_configuration["StoreInfo:StoreId"])
+                    StoreId = GetStoreID(storeName)
                 };
 
-                var content = new StringContent(JsonConvert.SerializeObject(ingredientsRestrictionsRequest));
-                var result = await _httpClient.PostAsync($"{_configuration["API:Products"]}/byrestrictions", content);
+                var content = new StringContent(JsonConvert.SerializeObject(ingredientsRestrictionsRequest), Encoding.Default, "application/json");
+                var result = await _httpClient.PostAsync($"{_configuration["API:Ingredients"]}", content);
 
                 if (result.IsSuccessStatusCode)
                 {
@@ -112,10 +115,14 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
                     throw new Exception(result.StatusCode.ToString());
                 }
             }
-            catch (Exception)
+            catch (Exception E)
             {
+                await _logServiceBus.SendMessagesAsync($"Falha ao recuperar produtos com as restrições, segue a descrição \"{E.Message}\".");
+
                 if (_configuration["API:mocked"] == "true")
                 {
+                    await _logServiceBus.SendMessagesAsync($"Criando dados fakes para produtos com as restrições");
+
                     var listProducts = new List<IngredientsRestrictionsResponse>()
                     {
                         new IngredientsRestrictionsResponse()
@@ -145,6 +152,20 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
             }
 
             return ingredientsRestrictions.Select(x => x.ToProduct()).ToList();
+        }
+
+        private Guid GetStoreID(string storeName)
+        {
+            if (storeName.Equals("Los Angeles - Pasadena", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return Guid.Parse("8048e9ec-80fe-4bad-bc2a-e4f4a75c834e");
+            }
+            else if (storeName.Equals("Los Angeles - Beverly Hills", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return Guid.Parse("8d618778-85d7-411e-878b-846a8eef30c0");
+            }
+
+            return Guid.Empty;
         }
     }
 }

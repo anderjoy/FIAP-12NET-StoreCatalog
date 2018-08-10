@@ -56,15 +56,14 @@ namespace StoreCatalog.WebAPI.Controllers
 
             try
             {                
-                var urlIngredients = _configuration["Ingredients"];
                 var areas = await _context.ProductionAreas.ToListAsync();                
-                var allowedAreas = areas.Where(area => user.Restrictions.All(restriction => area.Restrictions.Contains(restriction)))
+                var allowedAreas = areas.Where(area => user.Restrictions.All(restriction => area.Restrictions.Contains(restriction.ToLower())))
                     .ToList();
 
-                var filteredProducts = await _productService.GetProductsByRestrictionsAsync(user.Restrictions);
+                var filteredProducts = await _productService.GetProductsByRestrictionsAsync(user.StoreNome, user.Restrictions);
 
                 var allowedProducts = filteredProducts
-                    .Where(product => product.Ingredients.All(ingredient => allowedAreas.Any(area => !area.Restrictions.Contains(ingredient))))
+                    .Where(product => product.ListIngredients.All(ingredient => allowedAreas.Any(area => !area.ListRestrictions.Contains(ingredient))))
                     .ToList();
 
                 if (allowedProducts.Count() <= 2)

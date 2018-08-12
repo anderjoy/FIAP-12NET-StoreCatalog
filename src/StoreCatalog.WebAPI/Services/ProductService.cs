@@ -156,16 +156,17 @@ namespace GeekBurger.StoreCatalog.WebAPI.Services
 
         private Guid GetStoreID(string storeName)
         {
-            if (storeName.Equals("Los Angeles - Pasadena", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return Guid.Parse("8048e9ec-80fe-4bad-bc2a-e4f4a75c834e");
-            }
-            else if (storeName.Equals("Los Angeles - Beverly Hills", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return Guid.Parse("8d618778-85d7-411e-878b-846a8eef30c0");
-            }
+            var storeSection = _configuration.GetSection("Stores").GetChildren()
+                .FirstOrDefault(x => x.GetValue<string>("StoreName").Equals(storeName, StringComparison.InvariantCultureIgnoreCase));
 
-            return Guid.Empty;
+            if (storeSection != null)
+            {
+                return Guid.Parse(storeSection["StoreId"]);
+            }
+            else
+            {
+                return Guid.Empty;
+            }
         }
     }
 }
